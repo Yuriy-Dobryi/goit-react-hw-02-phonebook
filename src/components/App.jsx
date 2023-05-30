@@ -60,17 +60,19 @@ export class App extends Component {
 
   setFilter = (value) => {
     this.setState({ filter: value });
-  }
+  };
 
   filterContacts = () => {
     const { contacts } = this.state;
     const filter = this.state.filter.toLocaleLowerCase();
-    const filteredContacts = filter
-      ? contacts.filter(({ name }) => name.toLocaleLowerCase().includes(filter))
-      : contacts;
+    if (filter) {
+      const filteredContacts = contacts.filter(({ name }) => name.toLocaleLowerCase().includes(filter));
 
-    this.checkEmptyContacts(filteredContacts.length, 'filter');
-    return filteredContacts;
+      this.checkEmptyContacts(filteredContacts.length, 'filter');
+      return filteredContacts;
+    }
+
+    return contacts;
   }
   
   render() {
