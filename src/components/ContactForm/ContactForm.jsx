@@ -1,6 +1,13 @@
 import { Component } from "react";
-// import PropTypes from "prop-types";
-import css from './ContactForm.module.css'
+import { nanoid } from "nanoid";
+import PropTypes from "prop-types";
+import stylesApp from '../App.module.css'
+import styles from './ContactForm.module.css'
+
+const defaultState = {
+    name: '',
+    number: '',
+}
 
 export class ContactForm extends Component {
   state = {
@@ -16,17 +23,22 @@ export class ContactForm extends Component {
   submitClick = (e) => {
     e.preventDefault();
     const { addContact } = this.props;
-    addContact()
+    const { name, number } = this.state;
+    const newContact = { id: nanoid(), name, number }
+
+    addContact(newContact)
+    this.setState({ ...defaultState });
   }
 
   render() {
     const { name, number } = this.state;
 
     return (
-      <form onSubmit={submitClick}>
+      <form onSubmit={this.submitClick}>
+        
         <label>
           Name
-          <input className={css.input}
+          <input className={stylesApp.input}
             onChange={this.inputChange}
             value={name}
             type="text"
@@ -39,20 +51,23 @@ export class ContactForm extends Component {
 
         <label>
           Number
-          <input className={css.input}
+          <input className={stylesApp.input}
             onChange={this.inputChange}
             value={number}
             type="tel"
             name="number"
+            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+            required
           />
         </label>
 
-        <button className={css.add} type="submit">Add contact</button>
+        <button className={styles.add} type="submit">Add contact</button>
       </form>
     )
   }
 }
-// ContactForm.propTypes = {
-//   title: PropTypes.string.isRequired,
-//   children: PropTypes.node.isRequired,
-// };
+
+ContactForm.propTypes = {
+  addContact: PropTypes.func.isRequired,
+};

@@ -1,14 +1,18 @@
 import PropTypes from "prop-types";
-import css from './Section.module.css'
+import { ContactItem } from './ContactItem'
 
-export const Section = ({ title, children }) => (
-  <section className={css["main-wrapper"]}>
-    <h2 className={css.title}>{title}</h2>
-    {children}
-  </section>
+export const ContactList = ({ contacts, removeContact }) => (
+  <ul>
+    {contacts.map((contact) => (
+      <ContactItem key={contact.id}
+        contact={contact}
+        removeContact={removeContact} />
+    ))}
+  </ul>
 );
 
-Section.propTypes = {
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
+ContactList.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.objectOf(PropTypes.string).isRequired
+  ).isRequired,
 };

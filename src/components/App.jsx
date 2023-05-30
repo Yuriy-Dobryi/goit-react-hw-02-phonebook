@@ -1,15 +1,19 @@
 import { Component } from "react";
 import { nanoid } from "nanoid";
-import css from './App.module.css'
+import { Notify } from 'notiflix';
 
+import styles from './App.module.css'
 import { ContactForm } from "./ContactForm/ContactForm";
+import { Filter } from "./Filter/Filter";
+import { ContactList } from "./ContactList/ContactList";
 
 const INITIAL_CONTACTS = [
-  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  { id: 'id-5', name: 'Rosie Sompson', number: '111-22-33' },
+  { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
+  { id: nanoid(), name: 'Rosie Sompson', number: '145-23-65' },
+  { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
+  { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
+  { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
+  { id: nanoid(), name: 'Jack Shepart', number: '345-53-81' },
 ]
 
 export class App extends Component {
@@ -19,62 +23,78 @@ export class App extends Component {
   }
 
   addContact = (newContact) => {
-    this.setState(({ contacts}) => ({
+    const { contacts } = this.state;
+    const newContactName = newContact.name.toLocaleLowerCase();
+    const isNewContactExist = contacts.some(({ name }) =>
+      name.toLocaleLowerCase() === newContactName);
+    
+    if (isNewContactExist) {
+      Notify.failure(`${newContact.name} is already in contacts.🧐`)
+      return;
+    }
+
+    this.setState(({ contacts }) => ({
       contacts: [...contacts, newContact],
     }));
+  }
+
+  removeContact = (id) => {
+    const { contacts } = this.state;
+    const updatedContacts = contacts.filter((contact) =>
+      contact.id !== id);
+
+    this.setState(({ contacts }) => ({
+      contacts: [...updatedContacts],
+    }));
+
+    this.checkEmptyContacts(updatedContacts.length, 'remove');
+  }
+
+  checkEmptyContacts = (contactsCount, typeOperation) => {
+    if (contactsCount === 0) {
+      Notify.info(typeOperation === 'remove'
+        ? 'You deleted all contacts🙄'
+        : 'No contacts with this name');
+    }
+  }
+
+  setFilter = (value) => {
+    this.setState({ filter: value });
   }
 
   filterContacts = () => {
     const { contacts } = this.state;
     const filter = this.state.filter.toLocaleLowerCase();
+    const filteredContacts = filter
+      ? contacts.filter(({ name }) => name.toLocaleLowerCase().includes(filter))
+      : contacts;
 
-    return filter ? contacts.filter(({ name }) => name.toLocaleLowerCase().includes(filter)) : contacts;
+    this.checkEmptyContacts(filteredContacts.length, 'filter');
+    return filteredContacts;
   }
   
   render() {
+    const { filter } = this.state;
+    const filteredContacts = this.filterContacts();
+
     return (
       <div className="container">
-        <h1 className={css["phonebook-title"]}>Phonebook</h1>
-        <ContactForm  
-          inputChange={this.inputChange}
-        />
-        <h2 className={css["contacts-title"]}>Contacts</h2>
-        {/* <Filter ... />
-        <ContactList ... /> */}
+        <div className={styles.phonebook}>
+          <h1 className={styles.title}>Phonebook</h1>
+          <ContactForm
+            addContact={this.addContact} />
+        </div>
+
+        <div>
+          <h2 className={styles.title}>Contacts</h2>
+          <Filter
+            filter={filter}
+            setFilter={this.setFilter} />
+          <ContactList
+            contacts={filteredContacts}
+            removeContact={this.removeContact} />
+        </div>
       </div>
     )
   }
-
-  // rendere() {
-  //   const { filter, name, number } = this.state;
-  //   const filteredContacts = this.filterContacts();
-
-  //   return (
-  //     <div className="container">
-
-  //       <Section title={'Contacts'}>
-  //         <label>
-  //           Find contacts by name
-  //           <input className={css.input}
-  //             onChange={this.inputChange}
-  //             value={filter}
-  //             type="tel"
-  //             name="filter"
-  //             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-  //             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-  //             required
-  //           />
-  //         </label>
-  //         <ul>
-  //           {filteredContacts.map(({ id, name, number }) => (
-  //             <li key={id}>
-  //               <p className={css.contact}>{name}: {number}</p>
-  //             </li>
-  //           ))}
-  //         </ul>
-          
-  //       </Section>
-  //     </div>
-  //   )
-  // }
 }

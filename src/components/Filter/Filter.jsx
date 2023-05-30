@@ -1,14 +1,20 @@
 import PropTypes from "prop-types";
-import css from './Section.module.css'
+import stylesApp from '../App.module.css'
 
-export const Section = ({ title, children }) => (
-  <section className={css["main-wrapper"]}>
-    <h2 className={css.title}>{title}</h2>
-    {children}
-  </section>
+export const Filter = ({ filter, setFilter }) => (
+  <label>
+    Find contacts by name
+    <input className={stylesApp.input}
+      onChange={({target}) => setFilter(target.value)}
+      value={filter}
+      type="tel"
+      name="filter"
+      pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+      title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +" />
+  </label>
 );
 
-Section.propTypes = {
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
+Filter.propTypes = {
+  filter: PropTypes.string.isRequired,
+  setFilter: PropTypes.func.isRequired,
 };
