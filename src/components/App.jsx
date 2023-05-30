@@ -43,11 +43,21 @@ export class App extends Component {
     const updatedContacts = contacts.filter((contact) =>
       contact.id !== id);
 
-    this.setState({
-      contacts: [...updatedContacts]
-    });
+    this.setState(({ contacts }) => ({
+      contacts: [...updatedContacts],
+    }));
+
+    this.checkEmptyContacts(updatedContacts.length, 'remove');
   }
-  
+
+  checkEmptyContacts = (contactsCount, typeOperation) => {
+    if (contactsCount === 0) {
+      Notify.info(typeOperation === 'remove'
+        ? 'You deleted all contacts🙄'
+        : 'No contacts with this name');
+    }
+  }
+
   setFilter = (value) => {
     this.setState({ filter: value });
   }
@@ -59,6 +69,7 @@ export class App extends Component {
       ? contacts.filter(({ name }) => name.toLocaleLowerCase().includes(filter))
       : contacts;
 
+    this.checkEmptyContacts(filteredContacts.length, 'filter');
     return filteredContacts;
   }
   
